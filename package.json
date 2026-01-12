@@ -1,6 +1,5 @@
 {
   "name": "mini-server",
-  "type": "commonjs",
   "scripts": {
     "dev": "bun --watch server.js"
   },
