@@ -75,6 +75,19 @@ Bun.serve({
     // GET /reports/:id
     if (method === "GET" && url.pathname.startsWith("/reports/")) {
       const id = url.pathname.split("/").pop();
+      if (!id) {
+        return Response.json(
+          {
+            error: {
+              message: "path :id 값이 없습니다.",
+            },
+          },
+          {
+            headers,
+            status: 400,
+          }
+        );
+      }
       const report = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
 
       if (!report) {
@@ -89,11 +102,40 @@ Bun.serve({
     // POST /chat
     if (method === "POST" && url.pathname === "/chat") {
       const { contents } = await req.json();
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents,
-      });
-      return Response.json({ output: response.text }, { headers });
+      if (!contents) {
+        return Response.json(
+          {
+            error: {
+              message: "body contents 값이 없습니다.",
+            },
+          },
+          {
+            headers,
+            status: 400,
+          }
+        );
+      }
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-3-flash-preview",
+          contents,
+        });
+        return Response.json({ output: response.text }, { headers });
+      } catch (error) {
+        console.log(error.message);
+        const errorObj = JSON.parse(error.message);
+        return Response.json(
+          {
+            error: {
+              message: errorObj.error.message,
+            },
+          },
+          {
+            headers,
+            status: errorObj.error.code,
+          }
+        );
+      }
     }
 
     // POST /chat/save
