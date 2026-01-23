@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 // API 키는 환경변수로 관리
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-const AI_MODEL_NAME = "gemini-2.5-flash-lite"; // 참고 https://ai.google.dev/gemini-api/docs/models?hl=ko
+const AI_MODEL_NAME = "gemini-2.5-flash"; // 참고 https://ai.google.dev/gemini-api/docs/models?hl=ko
 
 export const createRoutes = (db, headers) => {
   return {
@@ -40,7 +40,9 @@ export const createRoutes = (db, headers) => {
         try {
           const response = await ai.models.generateContent({
             model: AI_MODEL_NAME,
-            contents,
+            // contents,
+            contents:
+              contents + "\n 최대한 간결하게 대답해줘. 최대 100자 이내.",
           });
           return Response.json({ output: response.text }, { headers });
         } catch (error) {
